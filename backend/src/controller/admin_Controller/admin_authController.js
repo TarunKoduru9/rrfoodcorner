@@ -185,10 +185,10 @@ const resetPassword = async (req, res) => {
 const getDashboardStats = async (req, res) => {
   try {
     const { from, to } = req.query;
-    const dateCondition =
-      from && to ? `WHERE DATE(os.created_at) BETWEEN ? AND ?` : "";
-    const dateValues = from && to ? [from, to] : [];
+    const hasDateFilter = from && to;
+    const dateValues = hasDateFilter ? [from, to] : [];
 
+    // Use unaliased table in simple counts
     const [[{ totalUsers }]] = await db.execute(
       "SELECT COUNT(*) AS totalUsers FROM users WHERE role = 'user'"
     );
@@ -202,58 +202,59 @@ const getDashboardStats = async (req, res) => {
     );
 
     const [[{ totalOrders }]] = await db.execute(
-      `SELECT COUNT(*) AS totalOrders FROM order_status ${dateCondition}`,
+      `SELECT COUNT(*) AS totalOrders FROM order_status ${hasDateFilter ? "WHERE DATE(created_at) BETWEEN ? AND ?" : ""}`,
       dateValues
     );
 
     const [[{ totalRevenue }]] = await db.execute(
-      `SELECT SUM(subtotal + taxes + delivery_charge - discount) AS totalRevenue FROM order_status ${dateCondition}`,
+      `SELECT SUM(subtotal + taxes + delivery_charge - discount) AS totalRevenue 
+       FROM order_status 
+       ${hasDateFilter ? "WHERE DATE(created_at) BETWEEN ? AND ?" : ""}`,
       dateValues
     );
 
     const [orderStatuses] = await db.execute(
-      `
-      SELECT status, COUNT(*) as count 
-      FROM order_status 
-      ${dateCondition}
-      GROUP BY status
-    `,
+      `SELECT status, COUNT(*) as count 
+       FROM order_status 
+       ${hasDateFilter ? "WHERE DATE(created_at) BETWEEN ? AND ?" : ""}
+       GROUP BY status`,
       dateValues
     );
 
+    // Now use alias `os` since you reference os.created_at
     const [recentOrders] = await db.execute(
       `
       SELECT os.id, u.name as user_name, os.subtotal, os.status, os.created_at 
       FROM order_status os
       JOIN users u ON os.user_id = u.id
-      ${dateCondition}
+      ${hasDateFilter ? "WHERE DATE(os.created_at) BETWEEN ? AND ?" : ""}
       ORDER BY os.created_at DESC 
       LIMIT 10
-    `,
+      `,
       dateValues
     );
 
+    // Uses alias `os`, so created_at needs to be prefixed correctly
     const [mostSoldItems] = await db.query(
       `
-SELECT 
-  fi.name, 
-  SUM(CAST(JSON_EXTRACT(os.items, CONCAT('$[', n.n, '].quantity')) AS UNSIGNED)) AS total_sold
-FROM order_status os
-JOIN food_items fi
-JOIN (
-  SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL
-  SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
-) n
-WHERE JSON_LENGTH(os.items) > n.n
-  AND fi.id = CAST(JSON_EXTRACT(os.items, CONCAT('$[', n.n, '].id')) AS UNSIGNED)
-  AND os.status = 'delivered'
-  ${from && to ? `AND DATE(os.created_at) BETWEEN ? AND ?` : ""}
-GROUP BY fi.name
-ORDER BY total_sold DESC
-LIMIT 5
-
-    `,
-      from && to ? dateValues : []
+      SELECT 
+        fi.name, 
+        SUM(CAST(JSON_EXTRACT(os.items, CONCAT('$[', n.n, '].quantity')) AS UNSIGNED)) AS total_sold
+      FROM order_status os
+      JOIN food_items fi
+      JOIN (
+        SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL
+        SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
+      ) n
+      WHERE JSON_LENGTH(os.items) > n.n
+        AND fi.id = CAST(JSON_EXTRACT(os.items, CONCAT('$[', n.n, '].id')) AS UNSIGNED)
+        AND os.status = 'delivered'
+        ${hasDateFilter ? "AND DATE(os.created_at) BETWEEN ? AND ?" : ""}
+      GROUP BY fi.name
+      ORDER BY total_sold DESC
+      LIMIT 5
+      `,
+      dateValues
     );
 
     res.json({
@@ -273,6 +274,7 @@ LIMIT 5
     res.status(500).json({ message: "Failed to fetch dashboard stats" });
   }
 };
+
 
 module.exports = {
   login,

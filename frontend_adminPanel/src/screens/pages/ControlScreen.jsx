@@ -20,6 +20,9 @@ const ControlScreen = () => {
     "orders",
     "coupons",
     "usersdata",
+    "newsection",
+    "feedback",
+    "delivery",
   ]);
 
   const fetchUsers = async () => {
