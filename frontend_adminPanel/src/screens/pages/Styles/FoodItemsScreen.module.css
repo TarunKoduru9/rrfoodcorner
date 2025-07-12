@@ -1,0 +1,236 @@
+/* Container */
+.container {
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+/* Heading */
+.container h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* Add Button */
+.addBtn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.2s ease;
+}
+
+.addBtn:hover {
+  background-color: #2563eb;
+}
+
+/* Category Filter */
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filterBtn {
+  padding: 8px 16px;
+  background-color: #555;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.filterBtn:hover {
+  background-color: #d1d5db;
+}
+
+.selected {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Food Items Grid */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info strong {
+  font-size: 16px;
+  color: #111827;
+}
+
+.info span {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Action Buttons */
+.editBtn,
+.deleteBtn {
+  margin: 0 8px 12px 8px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.editBtn {
+  background-color: #facc15;
+  color: #000;
+}
+
+.editBtn:hover {
+  background-color: #eab308;
+}
+
+.deleteBtn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.deleteBtn:hover {
+  background-color: #dc2626;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(31, 41, 55, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 24px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.modal h3 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #1f2937;
+}
+
+/* Form Inputs */
+.input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background-color: #f9fafb;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background-color: white;
+}
+
+/* File preview */
+.preview {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
+
+/* Modal Buttons */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.saveBtn {
+  background-color: #10b981;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.saveBtn:hover {
+  background-color: #059669;
+}
+
+.cancelBtn {
+  background-color: #6b7280;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background-color: #4b5563;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .list {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 16px;
+  }
+}

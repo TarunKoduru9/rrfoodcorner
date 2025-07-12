@@ -1,0 +1,65 @@
+/* Reset default margins & paddings */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Smooth scroll & font smoothing */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Body base styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f6fa;
+  color: #333;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* Remove default list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove anchor underlines */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Button reset */
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Input reset */
+input,
+textarea,
+select {
+  font: inherit;
+  outline: none;
+}
+
+/* Image responsive */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Optional root variables for easy theming */
+:root {
+  --primary: #007bff;
+  --primary-dark: #0056b3;
+  --bg: #f5f6fa;
+  --text: #333;
+  --radius: 8px;
+}
