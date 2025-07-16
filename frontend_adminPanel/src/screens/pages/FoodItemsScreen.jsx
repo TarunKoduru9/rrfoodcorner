@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Styles/FoodItemsScreen.module.css";
 import { BASE_URL } from "../../utils/api";
 import { useAuth } from "../../utils/AuthContext";
 
@@ -50,19 +49,11 @@ const FoodItemsScreen = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) throw new Error("Unauthorized");
-
       const data = await res.json();
-      if (!Array.isArray(data)) throw new Error("Unexpected response format");
-
       setCategories(data);
-
-      const specialCat = data.find((cat) => cat.name === "FOOD CORNER SPECIAL");
-      if (specialCat) {
-        setSelectedCategoryId(specialCat.id);
-      }
+      const special = data.find((cat) => cat.name === "FOOD CORNER SPECIAL");
+      if (special) setSelectedCategoryId(special.id);
     } catch (err) {
-      console.error(err);
       alert("Failed to fetch categories: " + err.message);
       setCategories([]);
     }
@@ -164,26 +155,30 @@ const FoodItemsScreen = () => {
     }
   };
 
-  if (authLoading || loading || !user?.permissions) return <p>Loading...</p>;
-  if (!permissions.can_view)
-    return <p>Access denied for this page. Please contact admin.</p>;
+  if (authLoading || loading || !user?.permissions) return <p className="p-4">Loading...</p>;
+  if (!permissions.can_view) return <p className="p-4 text-red-500">Access denied</p>;
 
   return (
-    <div className={styles.container}>
-      <h2>Food Items</h2>
+    <div className="p-6 max-w-screen-xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Food Items</h2>
 
       {permissions.can_create && (
-        <button className={styles.addBtn} onClick={() => setModalVisible(true)}>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+          onClick={() => setModalVisible(true)}
+        >
           + Add Food Item
         </button>
       )}
 
-      <div className={styles.filter}>
+      <div className="flex flex-wrap gap-2 mb-6">
         {categories.map((cat) => (
           <button
             key={cat.id}
-            className={`${styles.filterBtn} ${
-              selectedCategoryId === cat.id ? styles.selected : ""
+            className={`px-3 py-1 rounded border ${
+              selectedCategoryId === cat.id
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100"
             }`}
             onClick={() =>
               setSelectedCategoryId(
@@ -201,107 +196,125 @@ const FoodItemsScreen = () => {
       ) : filteredItems.length === 0 ? (
         <p>No items found</p>
       ) : (
-        <div className={styles.list}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
-            <div className={styles.card} key={item.id}>
+            <div
+              key={item.id}
+              className="border rounded p-4 shadow hover:shadow-md transition"
+            >
               <img
                 src={BASE_URL + item.image_url}
                 alt={item.name}
-                className={styles.image}
+                className="w-full h-40 object-cover rounded mb-3"
               />
-              <div className={styles.info}>
-                <strong>{item.name}</strong>
-                <span>
-                  {item.item_code} - ₹{item.price}
-                </span>
+              <div>
+                <h4 className="font-semibold">{item.name}</h4>
+                <p className="text-sm text-gray-600">
+                  {item.item_code} – ₹{item.price}
+                </p>
               </div>
-              {permissions.can_edit && (
-                <button
-                  className={styles.editBtn}
-                  onClick={() => openEditModal(item)}
-                >
-                  Edit
-                </button>
-              )}
-              {permissions.can_delete && (
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(item.id)}
-                >
-                  Delete
-                </button>
-              )}
+              <div className="flex gap-2 mt-3">
+                {permissions.can_edit && (
+                  <button
+                    className="px-3 py-1 bg-yellow-400 text-black rounded"
+                    onClick={() => openEditModal(item)}
+                  >
+                    Edit
+                  </button>
+                )}
+                {permissions.can_delete && (
+                  <button
+                    className="px-3 py-1 bg-red-500 text-white rounded"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {modalVisible && (permissions.can_create || permissions.can_edit) && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>{isEdit ? "Edit" : "Add"} Food Item</h3>
-            <input
-              type="text"
-              placeholder="Item Code"
-              className={styles.input}
-              value={itemCode}
-              onChange={(e) => setItemCode(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Name"
-              className={styles.input}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <select
-              className={styles.input}
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="Food Type"
-              className={styles.input}
-              value={foodType}
-              onChange={(e) => setFoodType(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Combo Type"
-              className={styles.input}
-              value={comboType}
-              onChange={(e) => setComboType(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Price"
-              className={styles.input}
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-            <textarea
-              placeholder="Subcontent"
-              className={styles.input}
-              value={subcontent}
-              onChange={(e) => setSubcontent(e.target.value)}
-            />
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            {preview && (
-              <img src={preview} alt="preview" className={styles.preview} />
-            )}
-            <div className={styles.actions}>
-              <button className={styles.saveBtn} onClick={handleSubmit}>
+      {/* Modal */}
+      {modalVisible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded w-full max-w-lg">
+            <h3 className="text-lg font-semibold mb-4">
+              {isEdit ? "Edit" : "Add"} Food Item
+            </h3>
+
+            <div className="space-y-3">
+              <input
+                placeholder="Item Code"
+                className="w-full border p-2 rounded"
+                value={itemCode}
+                onChange={(e) => setItemCode(e.target.value.toUpperCase())}
+              />
+              <input
+                placeholder="Name"
+                className="w-full border p-2 rounded"
+                value={name}
+                onChange={(e) => setName(e.target.value.toUpperCase())}
+              />
+              <select
+                className="w-full border p-2 rounded"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                placeholder="Food Type"
+                className="w-full border p-2 rounded"
+                value={foodType}
+                onChange={(e) => setFoodType(e.target.value.toUpperCase())}
+              />
+              <input
+                placeholder="Combo Type"
+                className="w-full border p-2 rounded"
+                value={comboType}
+                onChange={(e) => setComboType(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Price"
+                className="w-full border p-2 rounded"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+              <textarea
+                placeholder="Subcontent"
+                className="w-full border p-2 rounded"
+                value={subcontent}
+                onChange={(e) => setSubcontent(e.target.value)}
+              />
+              <input type="file" onChange={handleFileChange} />
+              {preview && (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="h-32 w-full object-cover rounded mt-2"
+                />
+              )}
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                className="bg-green-600 text-white px-4 py-2 rounded"
+                onClick={handleSubmit}
+              >
                 Save
               </button>
-              <button className={styles.cancelBtn} onClick={resetForm}>
+              <button
+                className="bg-gray-300 px-4 py-2 rounded"
+                onClick={resetForm}
+              >
                 Cancel
               </button>
             </div>

@@ -58,7 +58,7 @@ const login = async (req, res) => {
 
     const user = users[0];
 
-    if (user.role !== "user") {
+    if (user.role !== "user" && user.role !== "superadmin") {
       return res.status(403).json({ message: "Access denied. Not an user." });
     }
 
@@ -94,7 +94,7 @@ const sendOtp = async (req, res) => {
 
     const user = users[0];
 
-    if (user.role !== "user") {
+    if (user.role !== "user" && user.role !== "superadmin") {
       return res.status(403).json({ message: "Access denied. Not an user." });
     }
     const otp = generateOtp();

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Styles/CategoriesScreen.module.css";
-import { BASE_URL } from '../../utils/api';
-import { useAuth } from '../../utils/AuthContext';
+import { BASE_URL } from "../../utils/api";
+import { useAuth } from "../../utils/AuthContext";
 
 const CategoriesScreen = () => {
   const { user, loading: authLoading } = useAuth();
@@ -19,24 +18,13 @@ const CategoriesScreen = () => {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await fetch(`${BASE_URL}/admin/categories`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Failed to fetch categories.");
-      }
-
+      if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
-
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid response format");
-      }
-
+      if (!Array.isArray(data)) throw new Error("Invalid data format");
       setCategories(data);
     } catch (err) {
       alert(err.message);
@@ -82,9 +70,7 @@ const CategoriesScreen = () => {
 
       const res = await fetch(url, {
         method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
@@ -101,7 +87,7 @@ const CategoriesScreen = () => {
 
   const openEditModal = (item) => {
     setName(item.name);
-    setImage(null); 
+    setImage(null);
     setPreview(BASE_URL + item.catimage_url);
     setEditingId(item.id);
     setIsEdit(true);
@@ -126,65 +112,103 @@ const CategoriesScreen = () => {
     }
   };
 
-if (authLoading || loading || !user?.permissions) return <p>Loading...</p>;
-if (!permissions.can_view) return <p>Access denied for this page. Please contact admin.</p>;
-;
+  if (authLoading || loading || !user?.permissions)
+    return <p className="p-6 text-center">Loading...</p>;
 
+  if (!permissions.can_view)
+    return (
+      <p className="p-6 text-red-500 text-center">
+        Access denied. Please contact admin.
+      </p>
+    );
 
   return (
-    <div className={styles.container}>
-      <h2>Categories</h2>
+    <div className="p-4 sm:p-6 lg:p-10 max-w-screen-xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 sm:gap-0">
+        <h2 className="text-2xl font-bold">Categories</h2>
+        {permissions.can_create && (
+          <button
+            onClick={() => setModalVisible(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg cursor-pointer transition"
+          >
+            + Add Category
+          </button>
+        )}
+      </div>
 
-      {permissions.can_create && (
-        <button className={styles.addBtn} onClick={() => setModalVisible(true)}>
-          + Add Category
-        </button>
-      )}
-
-      <div className={styles.list}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {categories.map((item) => (
-          <div className={styles.card} key={item.id}>
+          <div
+            key={item.id}
+            className="bg-white border rounded-lg shadow-sm p-3 flex flex-col items-center text-center"
+          >
             <img
               src={BASE_URL + item.catimage_url}
               alt={item.name}
-              className={styles.image}
+              className="w-full h-28 object-cover rounded-md mb-2"
             />
-            <span className={styles.name}>{item.name}</span>
+            <span className="font-medium mb-2">{item.name}</span>
 
-            {permissions.can_edit && (
-              <button onClick={() => openEditModal(item)} className={styles.editBtn}>
-                Edit
-              </button>
-            )}
-
-            {permissions.can_delete && (
-              <button onClick={() => handleDelete(item.id)} className={styles.deleteBtn}>
-                Delete
-              </button>
-            )}
+            <div className="flex gap-3 mt-auto">
+              {permissions.can_edit && (
+                <button
+                  onClick={() => openEditModal(item)}
+                  className="text-sm text-blue-600 hover:underline cursor-pointer"
+                >
+                  Edit
+                </button>
+              )}
+              {permissions.can_delete && (
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="text-sm text-red-500 hover:underline cursor-pointer"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
       {modalVisible && (permissions.can_create || permissions.can_edit) && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>{isEdit ? "Edit" : "Add"} Category</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-md rounded-lg p-6 shadow-xl relative">
+            <h3 className="text-lg font-semibold mb-4">
+              {isEdit ? "Edit" : "Add"} Category
+            </h3>
             <input
               type="text"
               placeholder="Category Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={styles.input}
+              onChange={(e) => setName(e.target.value.toUpperCase())}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 mb-4"
             />
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            {preview && <img src={preview} className={styles.preview} alt="Preview" />}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="mb-4"
+            />
+            {preview && (
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-full h-40 object-cover rounded mb-4"
+              />
+            )}
 
-            <div className={styles.actions}>
-              <button onClick={handleSubmit} className={styles.saveBtn}>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handleSubmit}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded cursor-pointer"
+              >
                 Save
               </button>
-              <button onClick={resetForm} className={styles.cancelBtn}>
+              <button
+                onClick={resetForm}
+                className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded cursor-pointer"
+              >
                 Cancel
               </button>
             </div>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Styles/DashItemScreen.module.css";
 import API, { BASE_URL } from "../../utils/api";
 
 const DashItemsScreen = () => {
@@ -39,9 +38,7 @@ const DashItemsScreen = () => {
   const fetchFoodItemsByCategory = async (categoryId) => {
     if (foodItems[categoryId]) return;
     try {
-      const res = await API.get(
-        `/admin/dashitem/fornew-food-items/${categoryId}`
-      );
+      const res = await API.get(`/admin/dashitem/fornew-food-items/${categoryId}`);
       setFoodItems((prev) => ({ ...prev, [categoryId]: res.data }));
     } catch (err) {
       alert(err.response?.data?.message || "Failed to fetch food items");
@@ -115,29 +112,29 @@ const DashItemsScreen = () => {
   };
 
   useEffect(() => {
-    Promise.all([fetchCategories(), fetchDashItems(), fetchKeywords()]).finally(
-      () => setLoading(false)
+    Promise.all([fetchCategories(), fetchDashItems(), fetchKeywords()]).finally(() =>
+      setLoading(false)
     );
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="p-6 text-center text-lg">Loading...</p>;
 
   return (
-    <div className={styles.container}>
+    <div className="p-6 max-w-screen-xl mx-auto space-y-10">
+      {/* What's New Section */}
       <div>
-        <h2>Manage What's New Dashboard Items</h2>
-        <div className={styles.list}>
+        <h2 className="text-2xl font-bold mb-4">Manage What's New Dashboard Items</h2>
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
           {categories.map((cat) => {
             const selectedItem = foodItems[cat.id]?.find(
               (item) => item.id === parseInt(dashItems[cat.id])
             );
 
             return (
-              <div className={styles.card} key={cat.id}>
-                <strong>{cat.name}</strong>
-
+              <div key={cat.id} className="border rounded p-4 shadow-sm bg-white">
+                <strong className="block mb-2">{cat.name}</strong>
                 <select
-                  className={styles.input}
+                  className="w-full border p-2 rounded mb-3"
                   value={dashItems[cat.id] || ""}
                   onClick={() => fetchFoodItemsByCategory(cat.id)}
                   onChange={(e) =>
@@ -149,8 +146,8 @@ const DashItemsScreen = () => {
                 >
                   <option value="">-- Select Item --</option>
                   {(foodItems[cat.id] || []).map((item) => (
-                    <option key={item.id} value={item.id} title={item.name}>
-                      {item.name} (${item.price})
+                    <option key={item.id} value={item.id}>
+                      {item.name} (₹{item.price})
                     </option>
                   ))}
                 </select>
@@ -159,19 +156,13 @@ const DashItemsScreen = () => {
                   <img
                     src={BASE_URL + selectedItem.image_url}
                     alt={selectedItem.name}
-                    className={styles.preview}
-                    style={{
-                      marginTop: "10px",
-                      height: "100px",
-                      borderRadius: "10px",
-                    }}
+                    className="w-full h-24 object-cover rounded mb-3"
                   />
                 )}
 
                 <button
-                  className={styles.saveBtn}
-                  style={{ marginTop: 10 }}
                   onClick={() => saveDashItem(cat.id, dashItems[cat.id])}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-60"
                   disabled={saving}
                 >
                   {saving ? "Saving..." : "Save"}
@@ -182,47 +173,64 @@ const DashItemsScreen = () => {
         </div>
       </div>
 
+      {/* Keywords Section */}
       <div>
-        <h2 style={{ marginTop: 40 }}>Manage Keywords</h2>
-        <div className={styles.keywords}>
+        <h2 className="text-2xl font-bold mb-4">Manage Keywords</h2>
+        <div className="flex flex-wrap gap-2 mb-4">
           <input
-            className={styles.input}
             value={newKeyword}
-            onChange={(e) => setNewKeyword(e.target.value)}
+            onChange={(e) => setNewKeyword(e.target.value.toUpperCase())}
             placeholder="New Keyword"
+            className="border px-3 py-2 rounded w-full sm:w-auto flex-grow sm:flex-grow-0"
           />
-          <button className={styles.saveBtn} onClick={addKeyword}>
+          <button
+            onClick={addKeyword}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
             Add Keyword
           </button>
-
-          <ul className={styles.keywordList}>
-            {keywords.map((k) => (
-              <li key={k.id} className={styles.keywordItem}>
-                {editingKeywordId === k.id ? (
-                  <>
-                    <input
-                      className={styles.input}
-                      value={editingKeywordName}
-                      onChange={(e) => setEditingKeywordName(e.target.value)}
-                    />
-                    <button
-                      className={styles.saveBtn}
-                      onClick={saveEditedKeyword}
-                    >
-                      Save
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span>{k.name}</span>
-                    <button onClick={() => startEditing(k)}>Edit</button>
-                    <button onClick={() => deleteKeyword(k.id)}>Delete</button>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
         </div>
+
+        <ul className="space-y-2">
+          {keywords.map((k) => (
+            <li
+              key={k.id}
+              className="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded"
+            >
+              {editingKeywordId === k.id ? (
+                <>
+                  <input
+                    value={editingKeywordName}
+                    onChange={(e) => setEditingKeywordName(e.target.value.toUpperCase())}
+                    className="border px-2 py-1 rounded"
+                  />
+                  <button
+                    onClick={saveEditedKeyword}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  >
+                    Save
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-grow">{k.name}</span>
+                  <button
+                    onClick={() => startEditing(k)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => deleteKeyword(k.id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

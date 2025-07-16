@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Styles/UsersScreen.module.css";
 import API from "../../utils/api";
 
 const UsersScreen = () => {
@@ -24,7 +23,6 @@ const UsersScreen = () => {
 
   const deleteUser = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
-
     try {
       const res = await API.delete(`/admin/usersdata/${id}`);
       alert(res.data.message);
@@ -59,58 +57,58 @@ const UsersScreen = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
-      <h2>Users Who Placed Orders</h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">Users Who Placed Orders</h2>
       {loading ? (
         <p>Loading...</p>
       ) : users.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
+        <div className="overflow-x-auto">
+          <table className="w-full border border-gray-200 text-sm">
             <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Mobile</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Address</th>
-                <th>Orders</th>
-                <th>Action</th>
+              <tr className="bg-gray-100 text-left">
+                <th className="p-3 border">Name</th>
+                <th className="p-3 border">Email</th>
+                <th className="p-3 border">Mobile</th>
+                <th className="p-3 border">Role</th>
+                <th className="p-3 border">Status</th>
+                <th className="p-3 border">Address</th>
+                <th className="p-3 border">Orders</th>
+                <th className="p-3 border">Action</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.mobile}</td>
-                  <td>{user.role}</td>
-                  <td>{user.blocked ? "Blocked" : "Active"}</td>
-                  <td>
+                <tr key={user.id} className="hover:bg-gray-50">
+                  <td className="p-3 border">{user.name}</td>
+                  <td className="p-3 border">{user.email}</td>
+                  <td className="p-3 border">{user.mobile}</td>
+                  <td className="p-3 border">{user.role}</td>
+                  <td className="p-3 border">{user.blocked ? "Blocked" : "Active"}</td>
+                  <td className="p-3 border">
                     <button
-                      className={styles.viewBtn}
                       onClick={() => viewAddress(user)}
+                      className="text-blue-600 hover:underline cursor-pointer"
                     >
                       View
                     </button>
                   </td>
-                  <td>
+                  <td className="p-3 border">
                     <button
-                      className={styles.viewBtn}
                       onClick={() => {
                         setSelectedUser(user);
                         fetchOrders(user.id);
                       }}
+                      className="text-blue-600 hover:underline cursor-pointer"
                     >
                       View
                     </button>
                   </td>
-                  <td>
+                  <td className="p-3 border">
                     <button
-                      className={styles.deleteBtn}
                       onClick={() => deleteUser(user.id)}
+                      className="text-red-600 hover:underline cursor-pointer"
                     >
                       Delete
                     </button>
@@ -122,51 +120,38 @@ const UsersScreen = () => {
         </div>
       )}
 
+      {/* Order Modal */}
       {showOrderModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>Order History - {selectedUser?.name}</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-2xl p-6 rounded shadow-md max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4">
+              Order History - {selectedUser?.name}
+            </h3>
             {orderHistory.length === 0 ? (
               <p>No orders found.</p>
             ) : (
-              <ul className={styles.orderList}>
+              <ul className="space-y-4">
                 {orderHistory.map((order) => (
-                  <li key={order.id}>
+                  <li key={order.id} className="border-b pb-4">
+                    <p>Subtotal: ₹{order.subtotal}</p>
+                    <p>Discount: ₹{order.discount}</p>
+                    <p>Delivery: ₹{order.delivery_charge}</p>
+                    <p>Taxes: ₹{order.taxes}</p>
+                    <p>Total: ₹{order.total}</p>
+                    <p>Status: {order.status}</p>
                     <p>
-                      <strong>Subtotal:</strong> ₹{order.subtotal}
+                      Created: {new Date(order.created_at).toLocaleString()}
                     </p>
-                    <p>
-                      <strong>Discount:</strong> ₹{order.discount}
-                    </p>
-                    <p>
-                      <strong>Delivery:</strong> ₹{order.delivery_charge}
-                    </p>
-                    <p>
-                      <strong>Taxes:</strong> ₹{order.taxes}
-                    </p>
-                    <p>
-                      <strong>Total:</strong> ₹{order.total}
-                    </p>
-                    <p>
-                      <strong>Status:</strong> {order.status}
-                    </p>
-                    <p>
-                      <strong>Created:</strong>{" "}
-                      {new Date(order.created_at).toLocaleString()}
-                    </p>
-
                     {order.food_items?.length > 0 && (
                       <>
-                        <p>
-                          <strong>Items:</strong>
-                        </p>
-                        <ul className={styles.foodItemList}>
-                          {order.food_items.map((item, idx) => (
-                            <li key={idx} className={styles.foodItem}>
+                        <p className="mt-2 font-medium">Items:</p>
+                        <ul className="ml-4">
+                          {order.food_items.map((item, i) => (
+                            <li key={i} className="flex items-center gap-2 mb-1">
                               <img
                                 src={item.image}
                                 alt={item.name}
-                                className={styles.foodImage}
+                                className="w-10 h-10 rounded object-cover"
                               />
                               <span>
                                 {item.name} × {item.quantity}
@@ -176,14 +161,13 @@ const UsersScreen = () => {
                         </ul>
                       </>
                     )}
-                    <hr />
                   </li>
                 ))}
               </ul>
             )}
             <button
-              className={styles.closeBtn}
               onClick={() => setShowOrderModal(false)}
+              className="mt-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
             >
               Close
             </button>
@@ -191,34 +175,23 @@ const UsersScreen = () => {
         </div>
       )}
 
+      {/* Address Modal */}
       {showAddressModal && selectedAddress && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>Address - {selectedUser?.name}</h3>
-            <p>
-              <strong>House/Block No:</strong> {selectedAddress.house_block_no}
-            </p>
-            <p>
-              <strong>Area/Road:</strong> {selectedAddress.area_road}
-            </p>
-            <p>
-              <strong>City:</strong> {selectedAddress.city}
-            </p>
-            <p>
-              <strong>District:</strong> {selectedAddress.district}
-            </p>
-            <p>
-              <strong>State:</strong> {selectedAddress.state}
-            </p>
-            <p>
-              <strong>Country:</strong> {selectedAddress.country}
-            </p>
-            <p>
-              <strong>Pincode:</strong> {selectedAddress.pincode}
-            </p>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-lg p-6 rounded shadow-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Address - {selectedUser?.name}
+            </h3>
+            <p>House/Block No: {selectedAddress.house_block_no}</p>
+            <p>Area/Road: {selectedAddress.area_road}</p>
+            <p>City: {selectedAddress.city}</p>
+            <p>District: {selectedAddress.district}</p>
+            <p>State: {selectedAddress.state}</p>
+            <p>Country: {selectedAddress.country}</p>
+            <p>Pincode: {selectedAddress.pincode}</p>
             <button
-              className={styles.closeBtn}
               onClick={() => setShowAddressModal(false)}
+              className="mt-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
             >
               Close
             </button>
