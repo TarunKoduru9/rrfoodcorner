@@ -1,13 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
 
-export const BASE_URL = 'http://69.62.80.18:5000';
+export const BASE_URL = "http://69.62.80.18:5000";
 
 const API = axios.create({
   baseURL: BASE_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -15,8 +19,8 @@ API.interceptors.request.use((config) => {
 });
 
 export const logoutUser = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 };
 
 export default API;
