@@ -35,6 +35,7 @@ function App() {
           <Route path="/dashitems" element={<DashItemsScreen />} />
           <Route path="/feedback" element={<FeedbackList />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
