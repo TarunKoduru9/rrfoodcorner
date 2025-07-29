@@ -17,9 +17,8 @@ import FeedbackList from "./screens/pages/FeedbackList";
 
 function App() {
   return (
-    <Router basename="/admin">
+    <Router>
       <Routes>
-        <Route path="/admin" element={<Navigate to="/" />} />
         <Route path="/" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
@@ -36,7 +35,6 @@ function App() {
           <Route path="/dashitems" element={<DashItemsScreen />} />
           <Route path="/feedback" element={<FeedbackList />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
