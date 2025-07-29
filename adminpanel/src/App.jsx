@@ -17,7 +17,7 @@ import FeedbackList from "./screens/pages/FeedbackList";
 
 function App() {
   return (
-    <Router>
+    <Router basename="/admin">
       <Routes>
         <Route path="/" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
