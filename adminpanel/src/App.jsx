@@ -19,6 +19,7 @@ function App() {
   return (
     <Router basename="/admin">
       <Routes>
+        <Route path="/admin" element={<Navigate to="/" />} />
         <Route path="/" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
